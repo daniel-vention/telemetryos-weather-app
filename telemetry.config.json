@@ -6,6 +6,9 @@
     "render": "/render",
     "settings": "/settings"
   },
+  "backgroundWorkers": {
+    "weather": "workers/weather-sync.js"
+  },
   "devServer": {
     "runCommand": "vite --port 3000",
     "url": "http://localhost:3000"

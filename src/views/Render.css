@@ -1,67 +1,404 @@
+/* Figma: Full screen — без padding, чтобы Frame 1073 (576px) помещался по вертикали */
 .render {
-  flex: 1;
+  position: relative;
+  width: 1280px;
+  height: 720px;
+  left: 0;
+  top: 0;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  padding: 0;
+  gap: 0;
+  background: linear-gradient(0deg, #1a1b1d, #1a1b1d), linear-gradient(360deg, #4d8dcd 0%, #0055b3 100%);
+  border-radius: 24px;
+  color: #ffffff;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  box-sizing: border-box;
+}
+
+.render--transparent {
+  background: transparent;
+}
+
+/* Transition style при смене города */
+@keyframes weather-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes weather-slide-in {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.weather[data-transition="fade"] .weather__content-transition {
+  animation: weather-fade-in 0.5s ease-out;
+}
+.weather[data-transition="slide"] .weather__content-transition {
+  animation: weather-slide-in 0.4s ease-out;
+}
+.weather[data-transition="instant"] .weather__content-transition {
+  animation: none;
+}
+
+/* Обёртка не ломает верстку: повторяем раскладку левой колонки */
+.weather__left .weather__content-transition {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 77px;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.weather__bg-image,
+.weather__bg-video,
+.weather__overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.weather__bg-image { background-size: cover; background-position: center; }
+.weather__bg-video video { width: 100%; height: 100%; object-fit: cover; }
+.weather__overlay { pointer-events: none; }
+
+/* Frame 1073 — блок погоды по центру по вертикали */
+.weather__left {
+  position: absolute;
+  width: 693px;
+  height: 576px;
+  left: 62px;
+  top: calc(50% - 576px / 2);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0;
+  gap: 77px;
+  flex: none;
+}
+
+.weather__left .weather__top {
+  flex-shrink: 0;
+}
+
+.weather__left .weather__main {
+  margin: auto 0;
+}
+
+/* Frame 1072 */
+.weather__top {
+  display: flex;
+  flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-  padding: 3rem;
-  color: hsl(210 40% 88%);
-  background: hsl(212 28% 10%);
+  padding: 0;
+  margin: 0 auto;
+  width: 640px;
+  height: 76px;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+.weather__top-pill {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 640px;
+  height: 76px;
+  border-radius: 10px;
   overflow: hidden;
 }
 
-.render__logo {
-  width: 30rem;
-  max-width: 50%;
+/* City */
+.weather__location-pill {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 14px 22px 14px 18px;
+  width: 291px;
+  height: 76px;
+  background: #315fb9;
+  border-radius: 10px 0 0 10px;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  font-family: 'SF Pro Display', -apple-system, sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 48px;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
 }
 
-.render__hero {
+.weather__top-pill .weather__location-pill:only-child {
+  border-radius: 10px;
+}
+
+/* City (datetime) — Frame 1076 inside: gap 14px */
+.weather__datetime-badge {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 14px 18px 14px 22px;
+  gap: 14px;
+  width: 349px;
+  height: 76px;
+  background: #2e2e2f;
+  border-radius: 0 10px 10px 0;
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+  font-family: 'SF Pro Display', -apple-system, sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 48px;
+  color: #ffffff;
+  box-sizing: border-box;
+}
+
+/* Порядок: Today (0) | перегородка (1) | время (2) */
+.weather__datetime-today { order: 0; }
+.weather__datetime-sep {
+  width: 0;
+  height: 48px;
+  border-left: 4px solid rgba(255, 255, 255, 0.5);
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+  align-self: center;
+}
+.weather__datetime-time { order: 2; }
+
+/* Frame 1071 */
+.weather__main {
+  margin: 0 auto;
+  width: 693px;
+  height: 343px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 2rem;
+  padding: 0;
+  gap: 6px;
+  flex: none;
+  order: 1;
+  align-self: stretch;
+  flex-grow: 0;
 }
 
-.render__hero-title {
-  font-size: 5rem;
+/* Frame 1074 */
+.weather__current-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
+  gap: 40px;
+  width: 693px;
+  height: 343px;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+.weather__icon--current {
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  width: 302px;
+  height: 302px;
+  color: inherit;
+}
+.weather__icon--current svg {
+  width: 100%;
+  height: 100%;
+}
+
+.weather__temp {
+  width: 351px;
+  height: 343px;
+  font-family: 'Roboto Slab', serif;
+  font-style: normal;
   font-weight: 600;
-  text-align: center;
+  font-size: 260px;
+  line-height: 343px;
+  color: #ffffff;
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+  display: flex;
+  align-items: center;
 }
 
-.render__hero-subtitle {
-  font-size: 3rem;
-  text-align: center;
-}
-
-.render__docs-information {
+/* Frame 37 + 1075 в одну линию: Partly Cloudy | 8:25AM | 5:10PM */
+.weather__current {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 2rem;
+  gap: 6px;
+  width: 693px;
+  margin: 0 auto;
 }
 
-.render__docs-information-title {
-  font-size: 2rem;
+.weather__conditions-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  gap: 42px;
+  width: 693px;
+  height: 43px;
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+}
+
+.weather__conditions {
+  font-family: 'SF Pro Display', -apple-system, sans-serif;
+  font-style: normal;
   font-weight: 600;
-  text-align: center;
+  font-size: 36px;
+  line-height: 43px;
+  color: rgba(255, 255, 255, 0.6);
+  flex: none;
 }
 
-.render__docs-information-text {
-  font-size: 2rem;
-  max-width: 60rem;
-  text-align: center;
+.weather__sun-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
+  gap: 14px;
+  font-family: 'SF Pro Display', -apple-system, sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 32px;
+  line-height: 38px;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.6);
+  flex: none;
 }
 
-.render__docs-information-button {
+.weather__sun-item svg {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+/* Rectangle 988 */
+.weather__right-panel {
+  position: absolute;
+  width: 395px;
+  height: 720px;
+  left: 885px;
+  top: 0;
+  background: #2e2e2f;
+}
+
+/* Frame 1070 */
+.weather__hourly {
+  position: absolute;
+  width: 291px;
+  height: 594px;
+  left: 52px;
+  top: calc(50% - 594px / 2);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0;
+  gap: 30px;
+}
+
+.weather__hourly-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0;
+  gap: 20px;
+  width: 291px;
+  height: 74px;
+  flex: none;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+.weather__hourly-time {
+  width: 83px;
+  height: 38px;
+  font-family: 'SF Pro Display', -apple-system, sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 32px;
+  line-height: 38px;
+  text-align: center;
+  color: #ffffff;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+.weather__hourly-icon {
+  width: 70px;
+  height: 70px;
+  flex: none;
+  order: 1;
+  flex-grow: 0;
   display: flex;
   align-items: center;
-  background: rgb(248, 180, 53);
-  text-transform: uppercase;
-  font-size: 2rem;
-  text-decoration: none;
-  color: black;
-  font-weight: bold;
-  padding: 1rem 2rem;
-  border-radius: 1rem;
+  justify-content: center;
+  color: inherit;
 }
+.weather__hourly-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.weather__hourly-temp {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0;
+  width: 76px;
+  height: 74px;
+  font-family: 'Roboto Slab', serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 56px;
+  line-height: 74px;
+  text-align: center;
+  color: #ffffff;
+  flex: none;
+  order: 2;
+  flex-grow: 0;
+}
+
+/* Skeleton */
+.weather__skeleton .weather__temp-skel,
+.weather__skeleton .weather__icon-skel,
+.weather__skeleton .weather__location-skel,
+.weather__skeleton .weather__conditions-skel,
+.weather__skeleton .weather__date-skel,
+.weather__skeleton .weather__forecast-skel {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+.weather__skeleton .weather__location-pill { min-width: 291px; }
+.weather__skeleton .weather__datetime-badge { min-width: 349px; }
+.weather__temp-skel { width: 351px; height: 343px; }
+.weather__icon-skel { width: 302px; height: 302px; border-radius: 0; }
+.weather__conditions-skel { width: 213px; height: 43px; }
+.weather__date-skel { width: 200px; height: 48px; }
+.weather__forecast-skel { width: 83px; height: 38px; }
