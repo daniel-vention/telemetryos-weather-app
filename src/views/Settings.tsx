@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { media } from '@telemetryos/sdk'
+import { fetchCitySuggestions, type CitySuggestion } from '../utils/geocoding'
+import './Settings.css'
 import {
   SettingsContainer,
   SettingsHeading,
@@ -66,6 +68,10 @@ export function Settings() {
 
   const [imageOptions, setImageOptions] = useState<MediaItem[]>([])
   const [videoOptions, setVideoOptions] = useState<MediaItem[]>([])
+  const [citySuggestions, setCitySuggestions] = useState<CitySuggestion[]>([])
+  const [suggestionsOpenIndex, setSuggestionsOpenIndex] = useState<number | null>(null)
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false)
+  const geocodeDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const isLoading =
     isLoadingMode ||
@@ -130,6 +136,51 @@ export function Settings() {
     setCities(next)
   }
 
+  const apiKey = (import.meta.env?.VITE_OPENWEATHER_API_KEY as string) ?? ''
+
+  const loadCitySuggestions = useCallback(
+    (query: string) => {
+      if (!apiKey.trim() || query.trim().length < 2) {
+        setCitySuggestions([])
+        setSuggestionsOpenIndex(null)
+        return
+      }
+      setSuggestionsLoading(true)
+      fetchCitySuggestions(query, apiKey, 5)
+        .then((list) => {
+          setCitySuggestions(list)
+        })
+        .catch(() => setCitySuggestions([]))
+        .finally(() => setSuggestionsLoading(false))
+    },
+    [apiKey]
+  )
+
+  const onCityInputChange = (index: number, value: string) => {
+    updateCity(index, { cityName: value })
+    if (geocodeDebounceRef.current) clearTimeout(geocodeDebounceRef.current)
+    setSuggestionsOpenIndex(null)
+    setCitySuggestions([])
+    if (value.trim().length < 2) return
+    geocodeDebounceRef.current = setTimeout(() => {
+      geocodeDebounceRef.current = null
+      loadCitySuggestions(value)
+      setSuggestionsOpenIndex(index)
+    }, 300)
+  }
+
+  const onSelectSuggestion = (index: number, item: CitySuggestion) => {
+    updateCity(index, { cityName: item.cityName, displayName: item.displayName })
+    setCitySuggestions([])
+    setSuggestionsOpenIndex(null)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (geocodeDebounceRef.current) clearTimeout(geocodeDebounceRef.current)
+    }
+  }, [])
+
   return (
     <SettingsContainer>
       <SettingsHeading>Location</SettingsHeading>
@@ -167,15 +218,45 @@ export function Settings() {
               <SettingsHeading>City {index + 1}</SettingsHeading>
               <SettingsField>
                 <SettingsLabel>City name</SettingsLabel>
-                <SettingsInputFrame>
-                  <input
-                    type="text"
-                    placeholder="e.g. Vancouver, BC"
-                    disabled={isLoading}
-                    value={entry.cityName}
-                    onChange={(e) => updateCity(index, { cityName: e.target.value })}
-                  />
-                </SettingsInputFrame>
+                <div style={{ position: 'relative' }}>
+                  <SettingsInputFrame>
+                    <input
+                      type="text"
+                      placeholder="e.g. Vancouver, BC"
+                      disabled={isLoading}
+                      value={entry.cityName}
+                      onChange={(e) => onCityInputChange(index, e.target.value)}
+                      onFocus={() => citySuggestions.length > 0 && setSuggestionsOpenIndex(index)}
+                      onBlur={() => setTimeout(() => setSuggestionsOpenIndex(null), 150)}
+                      autoComplete="off"
+                    />
+                  </SettingsInputFrame>
+                  {suggestionsOpenIndex === index && (citySuggestions.length > 0 || suggestionsLoading) && (
+                    <ul role="listbox" className="settings-city-suggestions">
+                      {suggestionsLoading ? (
+                        <li className="settings-city-suggestions__loading">Loading…</li>
+                      ) : (
+                        citySuggestions.map((item, i) => (
+                          <li
+                            key={`${item.cityName}-${i}`}
+                            role="option"
+                            tabIndex={0}
+                            className="settings-city-suggestions__item"
+                            onMouseDown={(e) => {
+                              e.preventDefault()
+                              onSelectSuggestion(index, item)
+                            }}
+                          >
+                            {item.displayName}
+                          </li>
+                        ))
+                      )}
+                    </ul>
+                  )}
+                </div>
+                <SettingsHint>
+                  {apiKey.trim() ? 'Start typing for city suggestions (OpenWeather).' : 'Set VITE_OPENWEATHER_API_KEY for suggestions.'}
+                </SettingsHint>
               </SettingsField>
               <SettingsField>
                 <SettingsLabel>Display name override</SettingsLabel>
