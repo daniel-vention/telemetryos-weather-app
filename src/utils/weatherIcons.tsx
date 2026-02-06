@@ -1,6 +1,84 @@
 import type { ReactNode } from 'react'
 
+import partly_cloudy from '../assets/weather/partly_cloudy.svg'
+import mostly_cloudy from '../assets/weather/mostly_cloudy.svg'
+import clear from '../assets/weather/clear.svg'
+import overcast from '../assets/weather/overcast.svg'
+import rain from '../assets/weather/rain.svg'
+import thunderstorm from '../assets/weather/thunderstorm.svg'
+import partly_cloudy_rain from '../assets/weather/partly_cloudy_rain.svg'
+import rain_thunderstorm from '../assets/weather/rain_thunderstorm.svg'
+import partly_cloudy_night from '../assets/weather/partly_cloudy_night.svg'
+import clear_night from '../assets/weather/clear_night.svg'
+import full_moon from '../assets/weather/full_moon.svg'
+import partly_cloudy_rain_night from '../assets/weather/partly_cloudy_rain_night.svg'
+import sunrise from '../assets/weather/sunrise.svg'
+import sunset from '../assets/weather/sunset.svg'
+
 type IconCategory = 'sun' | 'cloud' | 'rain' | 'snow' | 'storm' | 'fog' | 'night'
+
+const WEATHER_ASSETS: Record<string, string> = {
+  partly_cloudy,
+  mostly_cloudy,
+  clear,
+  overcast,
+  rain,
+  thunderstorm,
+  partly_cloudy_rain,
+  rain_thunderstorm,
+  partly_cloudy_night,
+  clear_night,
+  full_moon,
+  partly_cloudy_rain_night,
+}
+
+/** Pick asset key from weather code and day/night. */
+export function getWeatherIconAssetKey(weatherCode: number, isNight?: boolean): string | null {
+  const n = isNight ?? false
+  if (weatherCode >= 200 && weatherCode <= 232) {
+    if (weatherCode <= 202 || (weatherCode >= 230 && weatherCode <= 232)) return 'rain_thunderstorm'
+    return 'thunderstorm'
+  }
+  if (weatherCode >= 300 && weatherCode <= 321) return n ? 'rain' : 'rain'
+  if (weatherCode >= 500 && weatherCode <= 531) return n ? 'rain' : 'rain'
+  if (weatherCode >= 600 && weatherCode <= 622) return 'overcast'
+  if (weatherCode >= 701 && weatherCode <= 781) return 'overcast'
+  if (weatherCode === 800) return n ? 'full_moon' : 'clear'
+  if (weatherCode === 801) return n ? 'partly_cloudy_night' : 'partly_cloudy'
+  if (weatherCode === 802 || weatherCode === 803) return n ? 'partly_cloudy_night' : 'mostly_cloudy'
+  if (weatherCode === 804) return 'overcast'
+  return n ? 'partly_cloudy_night' : 'mostly_cloudy'
+}
+
+/** Sunrise icon from assets/weather/sunrise.svg (40×40). */
+export function SunriseIcon({ sizeRem = 2.5, className }: { sizeRem?: number; className?: string }): ReactNode {
+  return (
+    <img
+      src={sunrise}
+      alt=""
+      className={className}
+      width={sizeRem * 16}
+      height={sizeRem * 16}
+      style={{ width: `${sizeRem}rem`, height: `${sizeRem}rem`, display: 'block' }}
+      aria-hidden
+    />
+  )
+}
+
+/** Sunset icon from assets/weather/sunset.svg (40×40). */
+export function SunsetIcon({ sizeRem = 2.5, className }: { sizeRem?: number; className?: string }): ReactNode {
+  return (
+    <img
+      src={sunset}
+      alt=""
+      className={className}
+      width={sizeRem * 16}
+      height={sizeRem * 16}
+      style={{ width: `${sizeRem}rem`, height: `${sizeRem}rem`, display: 'block' }}
+      aria-hidden
+    />
+  )
+}
 
 /** Map OpenWeatherMap condition id (200-804) to icon category. */
 export function openWeatherIdToCategory(id: number): IconCategory {
@@ -27,7 +105,39 @@ export function getWeatherIconCategory(weatherCode: number): IconCategory {
   return 'cloud'
 }
 
-/** Simple high-contrast SVG weather icon. */
+/** Weather icon: image from assets/weather when available, else inline SVG. */
+export function WeatherIcon({
+  category,
+  weatherCode,
+  isNight,
+  className,
+  sizeRem = 6,
+}: {
+  category: IconCategory
+  weatherCode?: number
+  isNight?: boolean
+  className?: string
+  sizeRem?: number
+}): ReactNode {
+  const key = weatherCode != null ? getWeatherIconAssetKey(weatherCode, isNight) : null
+  const src = key ? WEATHER_ASSETS[key] : null
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt=""
+        className={className}
+        width={sizeRem * 16}
+        height={sizeRem * 16}
+        style={{ width: `${sizeRem}rem`, height: `${sizeRem}rem`, display: 'block' }}
+        aria-hidden
+      />
+    )
+  }
+  return <WeatherIconSvg category={category} className={className} sizeRem={sizeRem} />
+}
+
+/** Simple high-contrast SVG weather icon (fallback). */
 export function WeatherIconSvg({
   category,
   className,

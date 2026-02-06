@@ -7,6 +7,7 @@ export type LayoutShape =
   | 'portrait'
   | 'large-square'
   | 'small-square'
+  | 'large-portrait'
   | 'landscape-bar'
   | 'portrait-bar'
   | 'chiron'
@@ -20,10 +21,13 @@ const CHIRON_ASPECT = 10
 const SKYSCRAPER_ASPECT = 1 / 10
 const SQUARE_LOW = 0.9
 const SQUARE_HIGH = 1.1
+const LARGE_PORTRAIT_ASPECT_MAX = 0.9
+const LARGE_PORTRAIT_ASPECT_MIN = 0.7
 const LANDSCAPE_BAR_MIN = 2.5
 const CHIRON_MIN = 6
 const PORTRAIT_BAR_MAX = 0.4
-const SKYSCRAPER_MAX = 0.15
+/* Aspect ≤0.2 skyscraper; ≤0.4 portrait-bar */
+const SKYSCRAPER_MAX = 0.2
 const SMALL_SQUARE_MAX_WIDTH = 500
 
 /**
@@ -46,6 +50,7 @@ export function getLayoutShape(): LayoutShape {
     return minSide <= SMALL_SQUARE_MAX_WIDTH ? 'small-square' : 'large-square'
   }
 
+  if (aspect >= LARGE_PORTRAIT_ASPECT_MIN && aspect < LARGE_PORTRAIT_ASPECT_MAX) return 'large-portrait'
   if (aspect >= PORTRAIT_ASPECT && aspect < SQUARE_LOW) return 'landscape'
   if (aspect <= LANDSCAPE_ASPECT && aspect > SQUARE_HIGH) return 'portrait'
 
@@ -58,5 +63,5 @@ export function showP2(shape: LayoutShape): boolean {
 }
 
 export function showP3(shape: LayoutShape): boolean {
-  return shape === 'landscape' || shape === 'portrait' || shape === 'large-square'
+  return shape === 'landscape' || shape === 'portrait' || shape === 'large-square' || shape === 'portrait-bar' || shape === 'skyscraper' || shape === 'chiron'
 }

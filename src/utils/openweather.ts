@@ -61,6 +61,7 @@ export async function fetchOpenWeather(
           i: number
         ) => ({
           label: formatForecastLabel(item.dt_txt, i >= 8),
+          dt_txt: item.dt_txt,
           temp: item.main.temp,
           precip: item.pop != null ? Math.round(item.pop * 100) : undefined,
           weatherCode: item.weather?.[0]?.id,

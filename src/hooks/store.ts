@@ -17,6 +17,8 @@ export interface WeatherCacheConditions {
 
 export interface WeatherCacheForecastRow {
   label: string
+  /** ISO date-time from API for 3-day strip weekday label */
+  dt_txt?: string
   temp: number
   precip?: number
   weatherCode?: number

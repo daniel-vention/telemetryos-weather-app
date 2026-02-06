@@ -1,6 +1,6 @@
 /**
- * OpenWeatherMap Geocoding API — подсказки городов.
- * Используется тот же API key, что и для погоды (отдельная регистрация не нужна).
+ * OpenWeatherMap Geocoding API for city suggestions.
+ * Same API key as weather (no separate registration).
  * @see https://openweathermap.org/api/geocoding-api
  */
 import { proxy } from '@telemetryos/sdk'
